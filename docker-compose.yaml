@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  email_service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html
+    env_file:
+      - .env
+    restart: always
+    container_name: email-service
+    entrypoint: [ "sh", "/var/www/html/entrypoint.sh" ]
+    tty: true
+    profiles:
+      - dev
+      - prod
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: always
+    container_name: rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - dev
